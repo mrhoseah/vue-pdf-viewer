@@ -1,0 +1,28 @@
+{
+  "name": "vue-pdf-viewer",
+  "version": "1.0.0",
+  "description": "A pdf reader and viewer based on vuejs, supports vue3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrhoseah/vue-pdf-viewer.git"
+  },
+  "keywords": [
+    "pdf",
+    "pdf-viewer",
+    "pdf-reader",
+    "vuejs"
+  ],
+  "author": "mrhoseah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrhoseah/vue-pdf-viewer/issues"
+  },
+  "homepage": "https://github.com/mrhoseah/vue-pdf-viewer#readme",
+  "dependencies": {
+    "vue": "^3.2.31"
+  }
+}
