@@ -61,7 +61,7 @@ export default defineComponent({
 
             function renderPage(num){
                     state.pageRendering = true;
-                    pdfDocument.value.getPage(num).then(function(page) {
+                    pdfDocument.getPage(num).then(function(page) {
                     console.log(page)
                     const canvas= document.querySelector('#renderRef');
                     const viewport = page.getViewport({ scale: props.scale, })
