@@ -25,7 +25,7 @@
     </div>
 </template>
 <script>
-import { reactive, defineComponent, onMounted } from 'vue';
+import { reactive, defineComponent, onMounted,ref } from 'vue';
 
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 
@@ -39,7 +39,7 @@ export default defineComponent({
         },
 
         setup(props){
-            let pdfDocument=Object;
+            const pdfDocument=ref(null);
             const state= reactive({
                 pageNumber:1,
                 pdfDocument:null,
@@ -47,16 +47,14 @@ export default defineComponent({
                 pageRendering :false,
                 pageNumIsPending:null,
             })
-            async function  getPdf() {
-               await pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
+            onMounted(()=>{
+                    pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
                         state.numPages= pdfDoc_.numPages;
                         state.pageRendering =true;
-                        pdfDocument=pdfDoc_
+                        pdfDocument.value=pdfDoc_
+                        console.log(pdfDoc_)
                         renderPage(state.pageNumber)
                     })
-            }
-            onMounted(()=>{
-                getPdf()
             })
 
             function renderPage(num){
@@ -123,7 +121,6 @@ export default defineComponent({
             renderPage,
             queueRenderPage,
             onPrevPage,
-            pdfDocument,
             onNextPage,
             state
             }
