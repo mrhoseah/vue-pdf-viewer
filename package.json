@@ -16,8 +16,8 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "pdfjs-dist": "^2.13.216",
+    "pinia": "^2.0.13",
     "vue": "^3.2.31",
-    "vuex": "^4.0.2",
     "worker-loader": "^3.0.8"
   },
   "devDependencies": {

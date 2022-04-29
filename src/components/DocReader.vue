@@ -17,7 +17,7 @@
                     </svg>
                 </span>
             </button>
-            <div class="py-2 px-3">Page <span class="ml-1">{{state.pageNumber}}</span> of <span>{{state.numPages}}</span></div>
+            <div class="py-2 px-3">Page <span class="ml-1">{{doc_pageNumber}}</span> of <span>{{pages}}</span></div>
         </div>
         <div class="bg-white rounded-lg p-2 my-2">
             <canvas id="renderRef"></canvas>
@@ -25,9 +25,10 @@
     </div>
 </template>
 <script>
-import { reactive, defineComponent, onMounted } from 'vue';
-
+import { defineComponent, onMounted} from 'vue';
+import { usePdfStore } from '@/stores/usePdf';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
         props:{
@@ -39,30 +40,29 @@ export default defineComponent({
         },
 
         setup(props){
-            let pdfDocument=Object;
-            const state= reactive({
-                pageNumber:1,
-                pdfDocument:null,
-                numPages:0,
-                pageRendering :false,
-                pageNumIsPending:null,
-            })
-            async function  getPdf() {
-               await pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
-                        state.numPages= pdfDoc_.numPages;
-                        state.pageRendering =true;
-                        pdfDocument=pdfDoc_
-                        renderPage(state.pageNumber)
-                    })
-            }
+             const pdfStore = usePdfStore();
+            const {myDocument,
+                    doc_pageNumber,
+                    pages,
+                    isPageRendering,
+                    isPageNumIsPending} = storeToRefs(pdfStore);
+
             onMounted(()=>{
-                getPdf()
+                        pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
+                        pdfStore.$patch((state) => { 
+                            state.pdfDocument=pdfDoc_;
+                            state.numPages=pdfDoc_.numPages;
+                            state.pageRendering =true;
+                            });
+                            console.log(doc_pageNumber.value)
+                        renderPage(doc_pageNumber.value)
+                    })
             })
 
             function renderPage(num){
-                    state.pageRendering = true;
-                    pdfDocument.getPage(num).then(function(page) {
-                    console.log(page)
+
+                    pdfStore.$patch((state)=>state.pageRendering = true);
+                    myDocument.value.getPage(num).then(function(page) {
                     const canvas= document.querySelector('#renderRef');
                     const viewport = page.getViewport({ scale: props.scale, })
                     let outputScale = window.devicePixelRatio || 1;
@@ -87,45 +87,49 @@ export default defineComponent({
 
                     // Wait for rendering to finish
                     renderTask.promise.then(function() {
-                    state.pageRendering = false;
-                    if (state.pageNumPending !== null) {
+                    pdfStore.$patch((state)=>state.pageRendering = false);
+                    if (pdfStore.pageNumPending !== null) {
                         // New page rendering is pending
-                        renderPage(state.pageNumPending);
-                        state.pageNumPending = null;
+                        renderPage(pdfStore.pageNumPending);
+                        pdfStore.$patch((state)=>state.pageNumPending = null);
                     }
                     });
-                    state.pageNumber=num
+                    pdfStore.$patch((state)=>state.pageNumber=num)
                 })
             }
             function queueRenderPage(num) {
-                if (state.pageRendering) {
-                    state.pageNumPending = num;
+                if (isPageRendering) {
+                    pdfStore.$patch((state)=>state.pageNumPending = num);
                 } else {
                     renderPage(num);
                 }
             }
 
             function onPrevPage() {
-                if (state.pageNumber <= 1) {
+                if (doc_pageNumber <= 1) {
                     return;
                 }
-                state.pageNumber--;
-                queueRenderPage(state.pageNumber);
+                pdfStore.$patch((state)=>state.pageNumber--);
+                queueRenderPage(doc_pageNumber);
             }
             function onNextPage() {
-                if (state.pageNumber <= state.numPages) {
+                if (doc_pageNumber <= pages) {
                     return;
                 }
-                state.pageNumber++;
-                queueRenderPage(state.pageNumber);
+                pdfStore.$patch((state)=>state.pageNumber++);
+                queueRenderPage(doc_pageNumber);
             }
         return{
             renderPage,
             queueRenderPage,
             onPrevPage,
-            pdfDocument,
             onNextPage,
-            state
+            myDocument,
+            doc_pageNumber,
+            pages,
+            isPageRendering,
+            isPageNumIsPending,
+            pdfStore
             }
         }
 })
