@@ -16,13 +16,5 @@ export const usePdfStore = defineStore('pdf',{
         pages: (state) =>state.numPages,
         isPageRendering: (state) =>state.pageRendering,
         isPageNumIsPending: (state) =>state.pageNumIsPending
-    },
-    actions:{
-        attachPdf:(state,payload)=> {
-            state.pdfDocument=payload;
-            state.pageNumber=payload;
-            state.numPages=payload.numPages;
-            state.pageRendering =true;
-        }
     }
 });

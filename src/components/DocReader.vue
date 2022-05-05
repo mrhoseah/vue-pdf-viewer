@@ -25,7 +25,7 @@
     </div>
 </template>
 <script>
-import { defineComponent, onMounted} from 'vue';
+import { defineComponent, onMounted,computed} from 'vue';
 import { usePdfStore } from '@/stores/usePdf';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import { storeToRefs } from 'pinia';
@@ -47,22 +47,23 @@ export default defineComponent({
                     isPageRendering,
                     isPageNumIsPending} = storeToRefs(pdfStore);
 
-            onMounted(()=>{
-                        pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
+           async function getContent() {
+                       await pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
                         pdfStore.$patch((state) => { 
                             state.pdfDocument=pdfDoc_;
                             state.numPages=pdfDoc_.numPages;
                             state.pageRendering =true;
                             });
-                            console.log(doc_pageNumber.value)
-                        renderPage(doc_pageNumber.value)
+                        renderPage(Number(isPageRendering.value))
                     })
+            }
+            onMounted(()=>{
+                getContent()
             })
-
             function renderPage(num){
-
                     pdfStore.$patch((state)=>state.pageRendering = true);
-                    myDocument.value.getPage(num).then(function(page) {
+                    const data =computed(() =>myDocument.value).value
+                    data.getPage(num).then(function(page) {
                     const canvas= document.querySelector('#renderRef');
                     const viewport = page.getViewport({ scale: props.scale, })
                     let outputScale = window.devicePixelRatio || 1;
@@ -88,36 +89,36 @@ export default defineComponent({
                     // Wait for rendering to finish
                     renderTask.promise.then(function() {
                     pdfStore.$patch((state)=>state.pageRendering = false);
-                    if (pdfStore.pageNumPending !== null) {
+                    if (Number(isPageRendering.value) !== null) {
                         // New page rendering is pending
-                        renderPage(pdfStore.pageNumPending);
+                        renderPage(Number(isPageRendering.value));
                         pdfStore.$patch((state)=>state.pageNumPending = null);
                     }
                     });
-                    pdfStore.$patch((state)=>state.pageNumber=num)
+                    pdfStore.$patch((state)=>state.pageNumber=doc_pageNumber.value)
                 })
             }
-            function queueRenderPage(num) {
-                if (isPageRendering) {
-                    pdfStore.$patch((state)=>state.pageNumPending = num);
+            function queueRenderPage() {
+                if (Number(isPageRendering.value)) {
+                    pdfStore.$patch((state)=>state.pageNumPending = doc_pageNumber.value);
                 } else {
-                    renderPage(num);
+                    renderPage(doc_pageNumber.value);
                 }
             }
 
             function onPrevPage() {
-                if (doc_pageNumber <= 1) {
+                if (doc_pageNumber.value <= 1) {
                     return;
                 }
-                pdfStore.$patch((state)=>state.pageNumber--);
-                queueRenderPage(doc_pageNumber);
+                pdfStore.$patch((state)=>state.pageNumber >1?state.pageNumber--:1);
+                queueRenderPage(doc_pageNumber.value);
             }
             function onNextPage() {
-                if (doc_pageNumber <= pages) {
+                if (doc_pageNumber.value <= pages) {
                     return;
                 }
                 pdfStore.$patch((state)=>state.pageNumber++);
-                queueRenderPage(doc_pageNumber);
+                queueRenderPage(doc_pageNumber.value);
             }
         return{
             renderPage,
