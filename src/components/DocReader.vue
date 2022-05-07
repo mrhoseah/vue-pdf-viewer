@@ -25,7 +25,7 @@
     </div>
 </template>
 <script>
-import { defineComponent, onMounted,computed} from 'vue';
+import { defineComponent, onMounted} from 'vue';
 import { usePdfStore } from '@/stores/usePdf';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import { storeToRefs } from 'pinia';
@@ -47,10 +47,11 @@ export default defineComponent({
                     isPageRendering,
                     isPageNumIsPending} = storeToRefs(pdfStore);
 
+                let pdfDcoument='';
            async function getContent() {
                        await pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
                         pdfStore.$patch((state) => { 
-                            state.pdfDocument=pdfDoc_;
+                            pdfDcoument=pdfDoc_;
                             state.numPages=pdfDoc_.numPages;
                             state.pageRendering =true;
                             });
@@ -62,8 +63,8 @@ export default defineComponent({
             })
             function renderPage(num){
                     pdfStore.$patch((state)=>state.pageRendering = true);
-                    const data =computed(() =>myDocument.value).value
-                    data.getPage(num).then(function(page) {
+       
+                    pdfDcoument.getPage(num).then(function(page) {
                     const canvas= document.querySelector('#renderRef');
                     const viewport = page.getViewport({ scale: props.scale, })
                     let outputScale = window.devicePixelRatio || 1;
@@ -130,7 +131,8 @@ export default defineComponent({
             pages,
             isPageRendering,
             isPageNumIsPending,
-            pdfStore
+            pdfStore,
+            pdfDcoument
             }
         }
 })
