@@ -30,6 +30,9 @@ import { usePdfStore } from '@/stores/usePdf';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import { storeToRefs } from 'pinia';
 
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
+
 export default defineComponent({
         props:{
                 url:String,
@@ -62,6 +65,9 @@ export default defineComponent({
                         state.pageRendering =true;
                         });
                     renderPage(doc_pageNumber.value)
+                 }).catch(function(error) {
+                    console.error('Error loading PDF:', error);
+                    alert('Error loading PDF: ' + error.message);
                  })
             })
 

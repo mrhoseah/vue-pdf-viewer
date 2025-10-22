@@ -1,24 +1,31 @@
 {
   "name": "vue-pdf-viewer",
   "version": "1.0.0",
-  "private": true,
-  "description": "A pdf reader and viewer based on vuejs, supports vue3",
+  "description": "A PDF reader and viewer component for Vue.js 3 with PDF.js integration",
   "author": {
     "name": "mrhoseah"
   },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:lib": "vue-cli-service build --target lib --name vue-pdf-viewer src/index.js",
     "lint": "vue-cli-service lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build:lib"
   },
-  "main": "index.js",
+  "main": "dist/vue-pdf-viewer.umd.js",
+  "module": "dist/vue-pdf-viewer.esm.js",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "pinia": "^2.0.0"
+  },
   "dependencies": {
-    "core-js": "^3.8.3",
-    "pdfjs-dist": "^2.13.216",
-    "pinia": "^2.0.13",
-    "vue": "^3.2.31",
-    "worker-loader": "^3.0.8"
+    "pdfjs-dist": "^2.13.216"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -27,12 +34,16 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "autoprefixer": "^10.4.4",
+    "core-js": "^3.8.3",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
+    "pinia": "^2.0.13",
     "postcss": "^8.4.12",
     "sass": "^1.50.0",
     "sass-loader": "^12.6.0",
-    "tailwindcss": "^3.0.23"
+    "tailwindcss": "^3.0.23",
+    "vue": "^3.2.31",
+    "worker-loader": "^3.0.8"
   },
   "eslintConfig": {
     "root": true,
