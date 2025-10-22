@@ -51,13 +51,13 @@ export default defineComponent({
                     isPageNumIsPending
                 } = storeToRefs(pdfStore);
             
-                let pdfDcoument=null;
+                let pdfDocument=null;
 
             onMounted(()=>{
                 pdfjsLib.getDocument(props.url).promise.then(function(pdfDoc_) {
-                    pdfDcoument= pdfDoc_
+                    pdfDocument= pdfDoc_
                     pdfStore.$patch((state) => { 
-                        pdfDcoument= pdfDoc_;
+                        pdfDocument= pdfDoc_;
                         state.numPages=pdfDoc_.numPages;
                         state.pageRendering =true;
                         });
@@ -69,7 +69,7 @@ export default defineComponent({
                     pdfStore.$patch((state)=>{state.pageRendering = true});
        
                     
-                     await pdfDcoument.getPage(num).then(function(page) {
+                     await pdfDocument.getPage(num).then(function(page) {
                     const canvas= document.querySelector('#renderRef');
                     const viewport = page.getViewport({ scale: props.scale, })
                     let outputScale = window.devicePixelRatio || 1;
@@ -98,7 +98,7 @@ export default defineComponent({
                         if (isPageRendering.value !== null) {
                             // New page rendering is pending
                             renderPage(isPageRendering.value);
-                            pdfStore.$patch((state) => {state.pageNumPending =null});
+                            pdfStore.$patch((state) => {state.pageNumIsPending =null});
                         }
                     });
                     pdfStore.$patch((state) => {state.pageNumber=doc_pageNumber.value})
@@ -107,7 +107,7 @@ export default defineComponent({
             }
             function queueRenderPage(num) {
                 if (isPageRendering.value) {
-                    pdfStore.$patch((state) => {state.pageNumPending=num});
+                    pdfStore.$patch((state) => {state.pageNumIsPending=num});
                      renderPage(doc_pageNumber.value)
                 } else {
                     renderPage(num);
@@ -140,7 +140,7 @@ export default defineComponent({
             isPageRendering,
             isPageNumIsPending,
             pdfStore,
-            pdfDcoument
+            pdfDocument
             }
         }
 })

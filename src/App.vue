@@ -1,5 +1,5 @@
 <template>
-  <doc-reader url="../../dropZone.pdf"/>
+  <doc-reader url="/dropZone.pdf"/>
 
 </template>
 
